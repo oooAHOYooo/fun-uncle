@@ -1,0 +1,27 @@
+{
+  "PaddleCombat": {
+    "DeflectionSphereRadiusCM": 350.0,
+    "ParryWindowSeconds": 0.25,
+    "BaseRestitution": 1.4,
+    "Spins": {
+      "Topspin": {
+        "Button": "A_Cross",
+        "MagnusDownwardForce": 2200.0,
+        "PostBounceSpeedRetention": 1.3,
+        "Description": "Aggressive downward arc over obstacles with fast forward skip"
+      },
+      "Backspin": {
+        "Button": "X_Square",
+        "MagnusUpwardForce": 1800.0,
+        "PostBounceSpeedRetention": 0.45,
+        "Description": "Floating trajectory with heavy air drag and zero roll upon landing"
+      },
+      "Sidespin": {
+        "Button": "B_Circle",
+        "MagnusLateralForce": 2500.0,
+        "PostBounceSpeedRetention": 1.0,
+        "Description": "Violent lateral hook curving around street corners and cover"
+      }
+    }
+  }
+}

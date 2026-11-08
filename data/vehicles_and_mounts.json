@@ -1,0 +1,39 @@
+{
+  "CarPolicy": {
+    "AllowCarDriving": false,
+    "CarInteractionBehavior": "VaultOverOrKickBumper",
+    "UncleQuote": "Too many damn touchscreens. I'm not typing a password to turn the wipers on."
+  },
+  "PermittedVehicles": {
+    "RentalEScooter": {
+      "MaxSpeedMPH": 30.0,
+      "MaxSpeedCMPS": 1341.12,
+      "BunnyHopHeightCM": 90.0,
+      "ShinKickDamage": 45.0,
+      "BellSoundAsset": "/Game/Audio/SFX_ScooterBell"
+    },
+    "Bicycle": {
+      "MaxSpeedMPH": 28.0,
+      "MaxSpeedCMPS": 1251.7,
+      "CurbHopHeightCM": 75.0,
+      "SprintCadenceMultiplier": 1.4
+    },
+    "Horse": {
+      "MaxSpeedMPH": 32.0,
+      "MaxSpeedCMPS": 1430.5,
+      "CanStiffArmFromSaddle": true,
+      "CanPaddleParryFromSaddle": true,
+      "JumpClearanceHeightCM": 180.0
+    },
+    "CityTrain": {
+      "AccessMethod": "ConductorFavor_Frankie_1991",
+      "TopSpeedMPH": 120.0,
+      "CanBypassSecurityCheckpoints": true
+    },
+    "AtmosphericRocketGlider": {
+      "FlightModel": "6DoF",
+      "LaunchMethod": "MunicipalCatapultTube",
+      "EjectionMethod": "ManualPullLever_Mach2Bailout"
+    }
+  }
+}

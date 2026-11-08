@@ -1,0 +1,27 @@
+{
+  "ArcadeScoring": {
+    "BaseScores": {
+      "StiffArmTruck": 250,
+      "RailGrindPerMeter": 15,
+      "Kickflip": 150,
+      "TrampolineDoubleBounce": 500,
+      "HighDive1080Gainer": 1200,
+      "ZeroSplashEntry": 2500,
+      "PaddleParryTopspin": 400,
+      "PaddleParryRallyStreakBonus": 800
+    },
+    "ComboRules": {
+      "ChainDecayWindowSeconds": 2.5,
+      "MaxMultiplier": 20.0
+    },
+    "RankThresholds": {
+      "SSS": 1000000,
+      "SS": 750000,
+      "S": 500000,
+      "A": 350000,
+      "B": 200000,
+      "C": 100000,
+      "D": 0
+    }
+  }
+}

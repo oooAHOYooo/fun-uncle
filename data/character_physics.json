@@ -1,0 +1,32 @@
+{
+  "Character": {
+    "WorkingTitle": "Fun Uncle",
+    "MassKG": 108.0,
+    "WalkSpeedCMPS": 400.0,
+    "SprintSpeedCMPS": 750.0,
+    "StaminaDrainPerSecond": 15.0,
+    "StaminaRecoveryPerSecond": 25.0
+  },
+  "SkatePhysics": {
+    "MaxGroundSpeedMPH": 40.0,
+    "MaxGroundSpeedCMPS": 1788.16,
+    "BasePushForce": 450.0,
+    "SlopeAccelerationMultiplier": 1.6,
+    "CarveTurnRateDegreesPerSec": 120.0,
+    "RailGrindFriction": 0.02,
+    "PowerSlideDecelerationCMPS2": 1200.0
+  },
+  "MaddenContact": {
+    "StiffArmImpulse": 4800.0,
+    "TruckingForwardImpulse": 6200.0,
+    "JukeLateralDistanceCM": 180.0,
+    "PhysicalAnimationTorsoBlend": 0.85
+  },
+  "AerialAndDiving": {
+    "TuckAngularSpeedMultiplier": 2.2,
+    "LayoutAngularSpeedMultiplier": 0.4,
+    "ZeroSplashMaxAngleDegrees": 5.0,
+    "CannonballShockwaveRadiusCM": 600.0,
+    "CannonballShockwaveImpulse": 5000.0
+  }
+}

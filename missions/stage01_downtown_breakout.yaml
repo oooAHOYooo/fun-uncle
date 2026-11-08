@@ -1,0 +1,31 @@
+stage_id: "STAGE_01"
+title: "Downtown Breakout"
+subtitle: "A Study in Polyester and Panic"
+par_time_seconds: 180
+
+objectives:
+  primary:
+    - id: "retrieve_drive"
+      description: "Grab Maya's encrypted drive from the 45th floor penthouse banquet"
+    - id: "escape_rooftop"
+      description: "Dive through the floor-to-ceiling glass to the construction nets below"
+    - id: "monorail_skate"
+      description: "Grind the monorail line toward the industrial switchyard"
+  brenda_errand:
+    id: "grocery_run"
+    description: "Pick up a gallon of 2% milk from Downtown Bodega before timer expires"
+    fail_penalty: "Aunt Brenda cold-pot-roast audio reprimand"
+
+mockumentary_events:
+  on_start:
+    speaker: "Vance"
+    text: "Chapter One: The Waking Colossus. He stood amidst the marble, an athletic relic confronting the modern beast."
+  on_first_dive:
+    speaker: "Vance"
+    text: "Sweet heaven above! He threw himself into the ether with neither fear nor insurance!"
+  on_drone_rally:
+    speaker: "FunUncle"
+    text: "Keep your eye on the ball, boys! Soft hands, don't tense up!"
+  on_clear:
+    talking_head_clip_id: "TH_STAGE01_LAWN_CHAIR"
+    text: "Was the banquet table expensive? Probably. Did it break my fall? Like a charm."
