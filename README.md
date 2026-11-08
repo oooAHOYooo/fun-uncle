@@ -54,7 +54,35 @@ This repository is built from the ground up for **Agentic Development** (AI agen
 - **Engine:** Unreal Engine 5 (UE 5.4+ / 5.5) using Enhanced Input, Chaos Physics, and World Partition.
 - **Workflow:** GitOps data-driven design (JSON/YAML game balance, missions, and dialogue).
 - **Target Platforms:** PC (Steam / Itch.io), Mac (Apple Silicon), Steam Deck, Xbox Series X/S (Dev Mode / ID@Xbox).
-- **Cloud Dev Support:** Configured for low-cost cloud development (Paperspace / AirGPU via Parsec) alongside local Mac/Linux git operations.
+- **Cloud Dev Support:** Configured for low-cost cloud development (AirGPU / Paperspace via Moonlight & Parsec) alongside local Linux/Mac git operations.
+
+---
+
+## ☁️ Cloud Workstation Setup (AirGPU & Moonlight)
+
+> **Last Updated:** 2026-11-08T11:58:00-05:00  
+> **Target Cloud Host:** Windows Server 2025 / Windows 11 with NVIDIA GPU (Nvidia L4 24GB or A10G)  
+> **Streaming Client:** Moonlight 6.2.0+ (1080p 60 FPS, 15 Mbps, <26ms ping)
+
+### 🚀 Instant Bootstrap (Inside Remote VM)
+To provision a brand-new cloud machine with all dependencies, open **PowerShell as Administrator** on the remote Windows desktop and run:
+
+```powershell
+irm https://raw.githubusercontent.com/oooAHOYooo/fun-uncle/main/scripts/setup_airgpu.ps1 | iex
+```
+
+This automated script ([`scripts/setup_airgpu.ps1`](scripts/setup_airgpu.ps1)) will:
+1. Install **Git** and **GitHub CLI** (`gh`).
+2. Install **Epic Games Launcher**.
+3. Install **Visual Studio 2022 Community** with the *"Game development with C++"* workload.
+4. Enable and start **OpenSSH Server** for direct CLI control.
+5. Install **VS Code** with remote tunnel support (`code tunnel`).
+6. Clone this repository directly into `%USERPROFILE%\Projects\fun-uncle`.
+
+### 🎮 Connecting to the Stream
+1. Start the machine in the cloud dashboard (check *"Use spare server capacity"* for ~$1.10/hr).
+2. Open **Moonlight** locally.
+3. Select your cloud host (e.g., `c2331cca64.my.airgpu.com`) and stream at **1080p 60 FPS**.
 
 ---
 
