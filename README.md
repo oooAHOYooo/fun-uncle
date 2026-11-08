@@ -15,6 +15,35 @@ The game is designed with a **"Good Old Game"** philosophy:
 
 ---
 
+## ⚡ Quick Copy-Paste: Cloud GPU Automation (AirGPU)
+
+> **Goal:** Run fast unattended batch jobs and shut down automatically so you never burn hourly GPU money ($1–$2/hr).
+
+### 1️⃣ First-Time Cloud Setup (Run inside Windows PowerShell as Admin)
+```powershell
+irm https://raw.githubusercontent.com/oooAHOYooo/fun-uncle/main/scripts/setup_airgpu.ps1 | iex
+```
+*(Installs Git, Node.js, Python, Antigravity `agy` agent, VS 2022 C++, OpenSSH, Idle Watchdog, desktop shortcuts, and clones the repo).*
+
+### 2️⃣ Auto-Batch Sync & Build (Inside PowerShell or double-click Desktop shortcut)
+```powershell
+# Pull latest code & build:
+powershell -ExecutionPolicy Bypass -File .\scripts\run_batch.ps1
+
+# Pull latest code, build, and AUTO-SHUTDOWN when done (Zero wasted minutes):
+powershell -ExecutionPolicy Bypass -File .\scripts\run_batch.ps1 -ShutdownOnFinish
+```
+
+### 3️⃣ Control from your Mac Terminal (No Remote Desktop needed)
+```bash
+./scripts/airgpu.sh status              # Check if cloud machine is online
+./scripts/airgpu.sh batch --shutdown    # Push local code, build remotely & auto-poweroff
+./scripts/airgpu.sh agent               # Run autonomous Antigravity agent on cloud
+./scripts/airgpu.sh shutdown            # Turn off machine immediately to stop billing
+```
+
+---
+
 ## 📚 Project Documentation & Specifications
 
 All core design, architectural, and agent-orchestration documentation lives in [`docs/`](docs/):

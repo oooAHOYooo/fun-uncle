@@ -23,12 +23,13 @@ show_help() {
     echo "  FUN UNCLE: AirGPU Control CLI"
     echo "  Target Host: $AIRGPU_USER@$AIRGPU_HOST:$AIRGPU_SSH_PORT"
     echo "=========================================================="
-    echo "Usage: ./scripts/airgpu.sh <command>"
+    echo "Usage: ./scripts/airgpu.sh <command> [options]"
     echo ""
     echo "Commands:"
     echo "  status       Check if AirGPU instance is online and reachable"
     echo "  ssh          Open direct interactive SSH shell into the cloud VM"
     echo "  agent        Launch Antigravity CLI (agy) remotely on the AirGPU"
+    echo "  batch        Run unattended git pull & UE build (add --shutdown to auto-poweroff)"
     echo "  sync         Push local git commits and pull them on AirGPU"
     echo "  shutdown     Gracefully shutdown the cloud VM immediately to stop billing"
     echo "  bootstrap    Print the 1-line PowerShell bootstrap setup command"
@@ -71,6 +72,17 @@ cmd_sync() {
     echo "✅ Sync complete. Cloud workspace is up to date with origin/main."
 }
 
+cmd_batch() {
+    local shutdown_flag=""
+    if [ "$1" == "--shutdown" ]; then
+        shutdown_flag="-ShutdownOnFinish"
+        echo "Executing unattended batch run with [AUTO-SHUTDOWN ON FINISH]..."
+    else
+        echo "Executing unattended batch run..."
+    fi
+    ssh -t -p "$AIRGPU_SSH_PORT" "$AIRGPU_USER@$AIRGPU_HOST" "powershell -ExecutionPolicy Bypass -File Projects\fun-uncle\scripts\run_batch.ps1 $shutdown_flag"
+}
+
 cmd_shutdown() {
     echo "Sending shutdown command to AirGPU ($AIRGPU_HOST) to halt hourly billing..."
     ssh -p "$AIRGPU_SSH_PORT" "$AIRGPU_USER@$AIRGPU_HOST" "shutdown /s /t 0"
@@ -105,6 +117,7 @@ case "$1" in
     status) cmd_status ;;
     ssh) cmd_ssh ;;
     agent) cmd_agent ;;
+    batch) cmd_batch "$2" ;;
     sync) cmd_sync ;;
     shutdown) cmd_shutdown ;;
     bootstrap) cmd_bootstrap ;;

@@ -86,9 +86,15 @@ if (Test-Path -Path $WatchdogScript) {
     }
 }
 
-# 8. Create Fast Launcher Shortcuts in User Directory
+# 8. Create Fast Launcher Shortcuts on Desktop
 $AgentShortcut = "$HOME\Desktop\Start_Antigravity_Agent.bat"
 "@echo off`ncd /d `"$RepoPath`"`nagy`npause" | Out-File -FilePath $AgentShortcut -Encoding ascii -Force
+
+$BatchShortcut = "$HOME\Desktop\Auto_Batch_Sync.bat"
+"@echo off`npowershell -ExecutionPolicy Bypass -File `"$RepoPath\scripts\run_batch.ps1`"`npause" | Out-File -FilePath $BatchShortcut -Encoding ascii -Force
+
+$BatchShutdownShortcut = "$HOME\Desktop\Auto_Batch_Sync_AND_SHUTDOWN.bat"
+"@echo off`npowershell -ExecutionPolicy Bypass -File `"$RepoPath\scripts\run_batch.ps1`" -ShutdownOnFinish`npause" | Out-File -FilePath $BatchShutdownShortcut -Encoding ascii -Force
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Green
