@@ -20,10 +20,17 @@ The game is designed with a **"Good Old Game"** philosophy:
 > **Goal:** Run fast unattended batch jobs and shut down automatically so you never burn hourly GPU money ($1–$2/hr).
 
 ### 1️⃣ First-Time Cloud Setup (Run inside Windows PowerShell as Admin)
+
+Copy this one-line command:
 ```powershell
 irm https://raw.githubusercontent.com/oooAHOYooo/fun-uncle/main/scripts/setup_airgpu.ps1 | iex
 ```
-*(Installs Git, Node.js, Python, Antigravity `agy` agent, VS 2022 C++, OpenSSH, Idle Watchdog, desktop shortcuts, and clones the repo).*
+
+**How to paste & run it on Windows:**
+1. Right-click the Windows **Start button** $\rightarrow$ select **Terminal (Admin)** or **PowerShell (Admin)**.
+2. **Right-click** anywhere inside the PowerShell window to paste the command.
+3. Press **Enter**.
+*(The script will automatically install Git, Node.js, Python, Antigravity `agy` agent, Visual Studio 2022 C++, OpenSSH, the Idle Watchdog, desktop batch shortcuts, and clone this repository).*
 
 ### 2️⃣ Auto-Batch Sync & Build (Inside PowerShell or double-click Desktop shortcut)
 ```powershell
