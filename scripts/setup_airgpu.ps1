@@ -39,6 +39,29 @@ try {
 Write-Host "[4/7] Installing Epic Games Launcher..." -ForegroundColor Yellow
 winget install -e --id EpicGames.EpicGamesLauncher --accept-source-agreements --accept-package-agreements
 
+# Automatically start Epic Games Launcher on desktop
+$EpicLauncherExe = "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win64\EpicGamesLauncher.exe"
+if (Test-Path $EpicLauncherExe) {
+    Write-Host "  -> Launching Epic Games Launcher on desktop for one-time sign-in..." -ForegroundColor Cyan
+    Start-Process -FilePath $EpicLauncherExe -ErrorAction SilentlyContinue
+}
+
+Write-Host ""
+Write-Host "  ================================================================" -ForegroundColor Cyan
+Write-Host "  ⚡ HOW TO CUT UE5 INSTALL TIME IN HALF (SAVE 25 GB & ~$0.30)    " -ForegroundColor Green
+Write-Host "  ================================================================" -ForegroundColor Cyan
+Write-Host "  1. Sign in to Epic Games Launcher (now opening on your desktop)." -ForegroundColor White
+Write-Host "  2. Go to 'Unreal Engine' -> 'Library' -> Click 'Install' (5.4/5.5)." -ForegroundColor White
+Write-Host "  3. Click the 'Options' dropdown button before hitting Install:" -ForegroundColor Yellow
+Write-Host "     [ ] UNCHECK Android           (Saves ~12 GB)" -ForegroundColor DarkGray
+Write-Host "     [ ] UNCHECK iOS               (Saves ~8 GB)" -ForegroundColor DarkGray
+Write-Host "     [ ] UNCHECK Linux             (Saves ~6 GB)" -ForegroundColor DarkGray
+Write-Host "     [ ] UNCHECK Debugging Symbols (Saves ~30 GB)" -ForegroundColor DarkGray
+Write-Host "     [X] KEEP Windows checked only" -ForegroundColor Green
+Write-Host "  -> Download size drops from 45 GB to ~22 GB (Installs in ~10 mins)!" -ForegroundColor Green
+Write-Host "  ================================================================" -ForegroundColor Cyan
+Write-Host ""
+
 Write-Host "[5/7] Installing Visual Studio 2022 Community (Game Dev with C++)..." -ForegroundColor Yellow
 winget install -e --id Microsoft.VisualStudio.2022.Community --override "--add Microsoft.VisualStudio.Workload.NativeGame --passive --norestart" --accept-source-agreements --accept-package-agreements
 
@@ -95,6 +118,25 @@ $BatchShortcut = "$HOME\Desktop\Auto_Batch_Sync.bat"
 
 $BatchShutdownShortcut = "$HOME\Desktop\Auto_Batch_Sync_AND_SHUTDOWN.bat"
 "@echo off`npowershell -ExecutionPolicy Bypass -File `"$RepoPath\scripts\run_batch.ps1`" -ShutdownOnFinish`npause" | Out-File -FilePath $BatchShutdownShortcut -Encoding ascii -Force
+
+# 9. Unreal Engine Path Detection & Environment Variable
+$UEPaths = @(
+    "C:\Program Files\Epic Games\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Cmd.exe",
+    "C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\Win64\UnrealEditor-Cmd.exe"
+)
+$FoundUE = $false
+foreach ($p in $UEPaths) {
+    if (Test-Path $p) {
+        $FoundUE = $true
+        $EngineDir = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $p))
+        [System.Environment]::SetEnvironmentVariable("UNREAL_ENGINE_PATH", $EngineDir, "User")
+        Write-Host "  -> Unreal Engine detected at: $EngineDir" -ForegroundColor Green
+        break
+    }
+}
+if (-not $FoundUE) {
+    Write-Host "  -> Epic Games Launcher is open. Follow the on-screen steps to install UE5." -ForegroundColor Yellow
+}
 
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Green
