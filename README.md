@@ -72,12 +72,24 @@ irm https://raw.githubusercontent.com/oooAHOYooo/fun-uncle/main/scripts/setup_ai
 ```
 
 This automated script ([`scripts/setup_airgpu.ps1`](scripts/setup_airgpu.ps1)) will:
-1. Install **Git** and **GitHub CLI** (`gh`).
-2. Install **Epic Games Launcher**.
-3. Install **Visual Studio 2022 Community** with the *"Game development with C++"* workload.
-4. Enable and start **OpenSSH Server** for direct CLI control.
-5. Install **VS Code** with remote tunnel support (`code tunnel`).
-6. Clone this repository directly into `%USERPROFILE%\Projects\fun-uncle`.
+1. Install **Git**, **GitHub CLI**, **Node.js LTS**, and **Python 3.11**.
+2. Install **Antigravity CLI** (`agy`) for unattended autonomous agent workflows.
+3. Install **Epic Games Launcher**.
+4. Install **Visual Studio 2022 Community** with the *"Game development with C++"* workload.
+5. Enable and start **OpenSSH Server** for direct CLI control from your Mac.
+6. Install **VS Code** with remote tunnel support (`code tunnel`).
+7. Install an **Idle Watchdog** ([`scripts/watchdog_idle_shutdown.ps1`](scripts/watchdog_idle_shutdown.ps1)) to auto-shutdown if idle for 20 minutes (saves $1-$2/hr).
+8. Clone this repository directly into `%USERPROFILE%\Projects\fun-uncle`.
+
+### 🕹️ Frictionless Local Control (`scripts/airgpu.sh`)
+Manage the cloud instance directly from your local Mac terminal:
+- `./scripts/airgpu.sh status` — Check if instance is online
+- `./scripts/airgpu.sh ssh` — Instant SSH terminal into Windows
+- `./scripts/airgpu.sh agent` — Run remote `agy` agent directly on the GPU instance
+- `./scripts/airgpu.sh sync` — Push local changes and trigger git pull on cloud
+- `./scripts/airgpu.sh shutdown` — Stop the VM immediately to halt hourly billing
+
+For full architectural details on the decoupled workflow, see [`docs/CLOUD_PIPELINE.md`](docs/CLOUD_PIPELINE.md).
 
 ### 🎮 Connecting to the Stream
 1. Start the machine in the cloud dashboard (check *"Use spare server capacity"* for ~$1.10/hr).
