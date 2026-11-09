@@ -171,3 +171,16 @@ The engine automatically swaps the active **Enhanced Input Mapping Context (IMC)
 ```
 
 * **Immediate Bail-out:** Holding `Y / Triangle` for `0.35s` in any vehicular state immediately transitions the avatar to `IMC_AIRBORNE` or `IMC_ON_FOOT`.
+
+---
+
+## 5. On-Screen HUD & Touch Overlay Styling ("Liquid Glass")
+
+For mobile devices, handheld on-screen prompts, and peripheral HUD button indicators:
+
+* **Material Aesthetic:** High-translucency frosted glassmorphism ("Liquid Glass").
+  * **Resting Fill:** `rgba(255, 255, 255, 0.08)` to prevent obscuring high-speed downhill lines and vert camera tracking.
+  * **Backdrop Filter:** Real-time dual-pass blur (`16px`) with specular top rim highlight (`inset 0 1px 1px rgba(255, 255, 255, 0.35)`).
+  * **Subtle Thin Bezel:** `1px` translucent border (`rgba(255, 255, 255, 0.18)`).
+  * **Active Response:** Dynamic neon pulse (Emerald for Topspin, Cyan for Backspin, Amber for Sidespin, Rose for Hit-Stick Truck) that flares on contact and immediately recedes to subtle translucency.
+
