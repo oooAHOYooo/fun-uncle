@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fun Uncle — Mechanics & UFC Neighbor Brawl Prototype</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Three.js import map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D Canvas Viewport -->
+  <div id="canvas-container"></div>
+
+  <!-- TOP UFC FIGHT TELEMETRY HEADER -->
+  <header id="ufc-header" class="liquid-glass">
+    <!-- Fun Uncle (Ray) -->
+    <div class="fighter-card left">
+      <div class="fighter-name-row">
+        <span class="fighter-name cyan">FUN UNCLE (RAY)</span>
+        <span class="fighter-title">108 KG • BOWLING SHIRT</span>
+      </div>
+      <div class="gauge-track">
+        <div id="uncle-hp-bar" class="hp-fill cyan" style="width: 100%;"></div>
+      </div>
+      <div class="sub-gauge">
+        <div id="uncle-stamina-bar" class="sub-fill stamina-fill" style="width: 100%;"></div>
+      </div>
+    </div>
+
+    <!-- Center Fight Info -->
+    <div class="round-info">
+      <div class="ufc-logo-badge">UFC BRAWL</div>
+      <div class="round-text">ROUND 1 • 5:00</div>
+    </div>
+
+    <!-- Neighbor Ned -->
+    <div class="fighter-card right">
+      <div class="fighter-name-row">
+        <span class="fighter-title">HOA TREASURER • KHAKIS</span>
+        <span class="fighter-name pink">NEIGHBOR NED</span>
+      </div>
+      <div class="gauge-track">
+        <div id="neighbor-hp-bar" class="hp-fill pink" style="width: 100%;"></div>
+      </div>
+      <div class="sub-gauge">
+        <div id="neighbor-stun-bar" class="sub-fill stun-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- COMBO MULTIPLIER BANNER -->
+  <div id="combo-banner">
+    <span id="combo-count">3x COMBO</span>
+  </div>
+
+  <!-- NEIGHBOR TRASH TALK SPEECH BUBBLE -->
+  <div id="trash-talk-bubble">
+    <span id="trash-talk-text">"Get off my Bermuda grass, Ray!"</span>
+  </div>
+
+  <!-- TOP RIGHT MODE SWITCHER -->
+  <div id="mode-switcher">
+    <button id="mode-ufc_fight" class="mode-btn active" onclick="setPlayMode('ufc_fight')">🥊 UFC Fight</button>
+    <button id="mode-free_roam" class="mode-btn" onclick="setPlayMode('free_roam')">🛹 Free Roam & Skate</button>
+    <button id="mode-anim_lab" class="mode-btn" onclick="setPlayMode('anim_lab')">🔬 Animation Lab</button>
+  </div>
+
+  <!-- ANIMATION INSPECTOR & PLAYTEST LAB PANEL -->
+  <div id="anim-lab-panel" class="liquid-glass">
+    <div class="panel-header">Animation Playtest Workbench</div>
+    
+    <div class="section-label">UFC Striking Engine</div>
+    <div class="anim-grid">
+      <button class="anim-action-btn" onclick="playLabAnimation('jab')">Left Jab [L-Click]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('cross')">Right Cross [R-Click]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('hook')">Lead Hook [Q]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('roundhouse')">Roundhouse Kick [C]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('knee')">Clinch Knee [V]</button>
+    </div>
+
+    <div class="section-label">Takedowns & Madden Contact</div>
+    <div class="anim-grid">
+      <button class="anim-action-btn" onclick="playLabAnimation('takedown')">Double-Leg Slam [R]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('stiff_arm')">Madden Stiff-Arm [F]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('juke_left')">Juke Left [E]</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('juke_right')">Juke Right [E]</button>
+    </div>
+
+    <div class="section-label">Reactions & Knockdown</div>
+    <div class="anim-grid">
+      <button class="anim-action-btn" onclick="playLabAnimation('hit_head')">Head Snapback</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('hit_body')">Body Gut Recoil</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('knockdown')">Tackle Fall & Mat</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('ko')">KO Ragdoll</button>
+    </div>
+
+    <div class="section-label">Locomotion & Traversal</div>
+    <div class="anim-grid">
+      <button class="anim-action-btn" onclick="playLabAnimation('idle')">Resting Idle</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('walk')">Walk (4 m/s)</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('sprint')">Sprint (7.5 m/s)</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('skate_push')">Skate Push (40 MPH)</button>
+      <button class="anim-action-btn" onclick="playLabAnimation('trampoline_bounce')">Trampoline Cannonball</button>
+    </div>
+
+    <div class="speed-control-row">
+      <span>Playback Speed: <b id="speed-val-display">1.00x</b></span>
+      <input type="range" class="speed-slider" min="0.1" max="2.0" step="0.05" value="1.0" oninput="setAnimSpeed(parseFloat(this.value))">
+    </div>
+  </div>
+
+  <!-- BOTTOM FLOATING LIQUID GLASS HUD -->
+  <footer id="bottom-hud" class="liquid-glass">
+    <div class="telemetry-item">
+      <span class="telemetry-label">GROUND SPEED</span>
+      <span id="speed-mph" class="telemetry-val">0 MPH</span>
+    </div>
+    <div class="hud-divider"></div>
+    <div class="telemetry-item">
+      <span class="telemetry-label">STATE MACHINE</span>
+      <span id="state-tag" class="telemetry-val" style="font-size: 13px;">STATE: UFC STRIKE READY</span>
+    </div>
+    <div class="hud-divider"></div>
+    <div class="controls-guide">
+      <span class="ctrl-pill"><b>WASD</b> Move</span>
+      <span class="ctrl-pill"><b>Shift</b> Sprint</span>
+      <span class="ctrl-pill"><b>L-Click</b> Jab</span>
+      <span class="ctrl-pill"><b>R-Click</b> Cross</span>
+      <span class="ctrl-pill"><b>Q</b> Hook</span>
+      <span class="ctrl-pill"><b>C</b> Kick</span>
+      <span class="ctrl-pill"><b>V</b> Knee</span>
+      <span class="ctrl-pill"><b>R</b> Takedown</span>
+      <span class="ctrl-pill"><b>F</b> Stiff-Arm</span>
+      <span class="ctrl-pill"><b>Tab</b> Skateboard</span>
+      <span class="ctrl-pill"><b>Space</b> Jump / Trampoline Rebound</span>
+      <span class="ctrl-pill">🎮 <b>Gamepad</b> Dual-Analog Supported</span>
+    </div>
+  </footer>
+
+  <!-- KNOCKOUT CELEBRATION MODAL -->
+  <div id="ko-overlay">
+    <div class="ko-box liquid-glass">
+      <h1 id="ko-title">NED DOWN!</h1>
+      <p id="ko-subtitle">RAY WINS BY KO • SUBURBAN SUPREMACY</p>
+      <button class="rematch-btn" onclick="resetMatch()">🥊 REMATCH ROUND</button>
+    </div>
+  </div>
+
+  <!-- Entry Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
