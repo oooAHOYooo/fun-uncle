@@ -156,6 +156,10 @@ function handlePlayerActions(dt) {
       uncleAnim.playAction('hook', 1.0);
     } else if (input.consumeKey('KeyC') || input.getGamepadButton(1)) {
       uncleAnim.playAction('roundhouse', 1.0);
+      // Step forward into the kick range
+      const stepDir = new THREE.Vector3().subVectors(neighborPos, unclePos).normalize();
+      stepDir.y = 0;
+      unclePos.addScaledVector(stepDir, 0.45);
     } else if (input.consumeKey('KeyE')) {
       uncleAnim.playAction('knee', 1.0);
     } else if (input.consumeKey('KeyR')) {
@@ -237,17 +241,21 @@ function updateUFC5Camera(dt) {
     currentLookAt.lerp(targetLook, 0.12);
   } else {
     // UFC 5 OVER-THE-SHOULDER / TIGHT CAM:
-    // Sits directly behind Fun Uncle, slightly offset to right shoulder
+    // Sits behind Fun Uncle, offset to the left so Uncle occupies the left third and Ned is framed clearly in the center
     const dirToOpponent = new THREE.Vector3().subVectors(neighborPos, unclePos).normalize();
-    const rightShoulder = new THREE.Vector3(-dirToOpponent.z, 0, dirToOpponent.x).multiplyScalar(0.42);
+    const sideOffset = new THREE.Vector3(-dirToOpponent.z, 0, dirToOpponent.x).multiplyScalar(-0.62);
 
     targetCamPos.set(
-      unclePos.x - dirToOpponent.x * 2.2 + rightShoulder.x,
-      1.48,
-      unclePos.z - dirToOpponent.z * 2.2 + rightShoulder.z
+      unclePos.x - dirToOpponent.x * 2.3 + sideOffset.x,
+      1.42,
+      unclePos.z - dirToOpponent.z * 2.3 + sideOffset.z
     );
 
-    const targetLook = new THREE.Vector3(neighborPos.x, 1.30, neighborPos.z);
+    const targetLook = new THREE.Vector3(
+      neighborPos.x + sideOffset.x * 0.15,
+      1.28,
+      neighborPos.z + sideOffset.z * 0.15
+    );
     currentLookAt.lerp(targetLook, 0.14);
   }
 

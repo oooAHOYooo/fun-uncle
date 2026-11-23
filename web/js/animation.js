@@ -329,44 +329,66 @@ export class CharacterAnimator {
         break;
       }
 
-      // UFC STRIKE 4: High Roundhouse Leg/Body Kick
+      // UFC STRIKE 4: High-Impact Roundhouse & Teep Kick
       case 'roundhouse': {
-        const duration = 0.52;
+        const duration = 0.48;
         const progress = Math.min(time / duration, 1.0);
 
-        if (progress < 0.45) {
-          const p = progress / 0.45;
-          // Torso turns over, standing leg posts
-          j.hips.rotation.y = -0.9 * p;
-          j.chest.rotation.y = -0.7 * p;
-          j.chest.rotation.z = -0.35 * p; // lean back for leverage
+        if (progress < 0.25) {
+          // Phase 1: Chamber knee up & pivot standing foot (0 - 25%)
+          const p = progress / 0.25;
+          j.hips.position.y = 1.05 + 0.04 * p;
+          j.hips.rotation.y = -0.45 * p;
+          j.chest.rotation.y = -0.35 * p;
+          j.chest.rotation.z = -0.2 * p; // lean back for balance
 
-          // Whipping right leg up
-          j.rightHip.rotation.x = 1.35 * p;
-          j.rightHip.rotation.z = 0.75 * p;
-          j.rightKnee.rotation.x = 0.9 * (1 - p) + 0.1 * p;
+          // Chamber right knee high
+          j.rightHip.rotation.x = 1.45 * p;
+          j.rightHip.rotation.z = 0.4 * p;
+          j.rightKnee.rotation.x = 1.7 * p; // folded knee
 
-          if (progress > 0.32 && !this.hitFrameFired) {
+          // Left arm guards face, right arm prepares to whip
+          j.leftShoulder.rotation.set(1.1 * p, 0, 0.4);
+          j.rightShoulder.rotation.set(0.6 * p, 0, -0.6 * p);
+        } else if (progress < 0.55) {
+          // Phase 2: Explosive hip turnover & shin extension (25% - 55%)
+          const p = (progress - 0.25) / 0.3;
+          j.hips.rotation.y = -0.45 * (1 - p) - 1.15 * p;
+          j.chest.rotation.y = -0.35 * (1 - p) - 0.85 * p;
+          j.chest.rotation.z = -0.35;
+
+          // Leg uncoils like a baseball bat
+          j.rightHip.rotation.x = 1.45 * (1 - p) + 1.65 * p;
+          j.rightHip.rotation.z = 0.4 * (1 - p) + 0.95 * p;
+          j.rightKnee.rotation.x = 1.7 * (1 - p) + 0.15 * p; // snap shin straight
+
+          // Right arm whips down for torque, left hand guards chin
+          j.rightShoulder.rotation.set(-0.4 * p, 0, -1.1 * p);
+
+          // Hit frame
+          if (progress > 0.36 && !this.hitFrameFired) {
             this.hitFrameFired = true;
             this.activeHitbox = {
               source: this.char,
               bone: j.rightFoot,
-              radius: 0.6,
-              damage: 38,
-              impulse: 6500,
+              radius: 0.95, // Generous striking envelope
+              damage: 40,
+              impulse: 7800, // Heavy kick knockback
               type: 'roundhouse',
               sound: 'kick_heavy'
             };
             if (this.hitCallback) this.hitCallback(this.activeHitbox);
           }
         } else {
-          const p = (progress - 0.45) / 0.55;
-          j.hips.rotation.y = -0.9 * (1 - p);
-          j.chest.rotation.y = -0.7 * (1 - p);
+          // Phase 3: Recoil & plant back into fight stance (55% - 100%)
+          const p = (progress - 0.55) / 0.45;
+          j.hips.rotation.y = -1.15 * (1 - p);
+          j.chest.rotation.y = -0.85 * (1 - p);
           j.chest.rotation.z = -0.35 * (1 - p);
-          j.rightHip.rotation.x = 1.35 * (1 - p);
-          j.rightHip.rotation.z = 0.75 * (1 - p);
-          j.rightKnee.rotation.x = 0.1 * (1 - p);
+          j.rightHip.rotation.x = 1.65 * (1 - p);
+          j.rightHip.rotation.z = 0.95 * (1 - p);
+          j.rightKnee.rotation.x = 0.15 * (1 - p);
+          j.rightShoulder.rotation.set(-0.4 * (1 - p), 0, -1.1 * (1 - p) - 0.35 * p);
           this.activeHitbox = null;
         }
 
