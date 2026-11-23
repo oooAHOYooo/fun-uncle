@@ -57,20 +57,20 @@ export function setupWorld(scene) {
   const ringRadius = 7.5;
   const matGeo = new THREE.CylinderGeometry(ringRadius, ringRadius, 0.4, 8);
   const matMaterial = new THREE.MeshStandardMaterial({
-    color: 0x1f232b,
-    roughness: 0.7
+    color: 0x181a20,
+    roughness: 0.75
   });
   const canvasMat = new THREE.Mesh(matGeo, matMaterial);
-  canvasMat.position.y = 0.2;
+  canvasMat.position.y = -0.2; // Top of canvas is flush at y = 0
   canvasMat.receiveShadow = true;
   octagonGroup.add(canvasMat);
 
-  // Canvas center logo circle
-  const logoGeo = new THREE.RingGeometry(1.2, 2.2, 32);
-  const logoMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, side: THREE.DoubleSide });
+  // Canvas center logo ring
+  const logoGeo = new THREE.RingGeometry(1.4, 2.4, 32);
+  const logoMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
   const logo = new THREE.Mesh(logoGeo, logoMat);
   logo.rotation.x = -Math.PI / 2;
-  logo.position.y = 0.41;
+  logo.position.y = 0.005;
   octagonGroup.add(logo);
 
   // Corner Posts & Padded Rails
@@ -89,7 +89,7 @@ export function setupWorld(scene) {
     if (i === 4) pMat = redPostMat;
 
     const post = new THREE.Mesh(postGeo, pMat);
-    post.position.set(px, 1.3, pz);
+    post.position.set(px, 1.1, pz);
     post.castShadow = true;
     octagonGroup.add(post);
 
@@ -98,10 +98,10 @@ export function setupWorld(scene) {
     const npx = Math.cos(nextAngle) * ringRadius;
     const npz = Math.sin(nextAngle) * ringRadius;
 
-    [0.8, 1.3, 1.8].forEach(ry => {
+    [0.55, 1.05, 1.55].forEach(ry => {
       const ropeDir = new THREE.Vector3(npx - px, 0, npz - pz);
       const ropeLen = ropeDir.length();
-      const ropeGeo = new THREE.CylinderGeometry(0.025, 0.025, ropeLen, 8);
+      const ropeGeo = new THREE.CylinderGeometry(0.02, 0.02, ropeLen, 8);
       const rope = new THREE.Mesh(ropeGeo, postMaterial);
 
       const midX = (px + npx) / 2;

@@ -1,20 +1,19 @@
-// web/js/main.js - Fun Uncle Web Prototype Core Loop & Playtest Controller
+// web/js/main.js - UFC 5 Style Perspective & Minimalist Fighting Loop
 import * as THREE from 'three';
 import { createCharacter } from './character.js';
 import { CharacterAnimator } from './animation.js';
 import { setupWorld } from './world.js';
 import { CombatManager } from './combat.js';
 import { InputManager } from './input.js';
-import { soundFX } from './audio.js';
 
 // Setup Three.js
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0c10);
-scene.fog = new THREE.FogExp2(0x0a0c10, 0.025);
+scene.background = new THREE.Color(0x06080c);
+scene.fog = new THREE.FogExp2(0x06080c, 0.022);
 
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 150);
-camera.position.set(0, 3.5, 8.5);
+// UFC 5 style 48-degree FOV for cinematic sports depth
+const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 120);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,150 +22,100 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 container.appendChild(renderer.domElement);
 
-// Setup World & Arenas
+// Setup World & Octagon
 const world = setupWorld(scene);
 
-// Create Characters
+// Create Characters & Initial UFC Ring Placements
 const uncleData = createCharacter('uncle');
-uncleData.root.position.set(0, 0, 3.0);
+uncleData.root.position.set(-1.6, 0, 0); // Red corner side
 scene.add(uncleData.root);
 
 const neighborData = createCharacter('neighbor');
-neighborData.root.position.set(0, 0, -3.0);
-neighborData.root.rotation.y = Math.PI;
+neighborData.root.position.set(1.6, 0, 0); // Blue corner side
+neighborData.root.rotation.y = -Math.PI / 2;
 scene.add(neighborData.root);
 
 // Animators
 const uncleAnim = new CharacterAnimator(uncleData);
 const neighborAnim = new CharacterAnimator(neighborData);
 
-// Input
+// Input Manager
 const input = new InputManager(renderer.domElement);
 
-// UI elements
+// UI Elements (minimalist top bar)
 const uncleHpBar = document.getElementById('uncle-hp-bar');
-const uncleStaminaBar = document.getElementById('uncle-stamina-bar');
 const neighborHpBar = document.getElementById('neighbor-hp-bar');
-const neighborStunBar = document.getElementById('neighbor-stun-bar');
-const comboBanner = document.getElementById('combo-banner');
-const comboCountText = document.getElementById('combo-count');
-const trashTalkBubble = document.getElementById('trash-talk-bubble');
-const trashTalkText = document.getElementById('trash-talk-text');
-const speedIndicator = document.getElementById('speed-mph');
-const stateIndicator = document.getElementById('state-tag');
 const koOverlay = document.getElementById('ko-overlay');
-const koText = document.getElementById('ko-title');
+const koTitle = document.getElementById('ko-title');
 const koSubtitle = document.getElementById('ko-subtitle');
+const camToggleBtn = document.getElementById('cam-toggle-btn');
 
 // Combat Manager
 const combat = new CombatManager(
   uncleData, uncleAnim,
   neighborData, neighborAnim,
-  (stats) => updateUIStats(stats)
+  (stats) => updateUI(stats)
 );
 
-function updateUIStats(stats) {
+function updateUI(stats) {
   if (uncleHpBar) uncleHpBar.style.width = `${Math.max(0, stats.uncleHP)}%`;
-  if (uncleStaminaBar) uncleStaminaBar.style.width = `${Math.max(0, stats.uncleStamina)}%`;
   if (neighborHpBar) neighborHpBar.style.width = `${Math.max(0, stats.neighborHP)}%`;
-  if (neighborStunBar) neighborStunBar.style.width = `${Math.max(0, stats.neighborStun)}%`;
-
-  if (comboBanner) {
-    if (stats.comboCounter > 1) {
-      comboBanner.classList.add('visible');
-      if (comboCountText) comboCountText.textContent = `${stats.comboCounter}x COMBO`;
-    } else {
-      comboBanner.classList.remove('visible');
-    }
-  }
-
-  if (trashTalkBubble) {
-    if (stats.trashTalk && stats.trashTalk.length > 0) {
-      trashTalkBubble.classList.add('visible');
-      if (trashTalkText) trashTalkText.textContent = stats.trashTalk;
-    } else {
-      trashTalkBubble.classList.remove('visible');
-    }
-  }
 
   if (koOverlay) {
     if (stats.fightState === 'ko_neighbor') {
       koOverlay.classList.add('visible');
-      if (koText) koText.textContent = "NED DOWN!";
-      if (koSubtitle) koSubtitle.textContent = "RAY WINS BY KO • SUBURBAN SUPREMACY";
+      if (koTitle) koTitle.textContent = "KNOCKOUT!";
+      if (koSubtitle) koSubtitle.textContent = "RAY WINS BY KO • SUBURBAN CHAMPION";
     } else if (stats.fightState === 'ko_uncle') {
       koOverlay.classList.add('visible');
-      if (koText) koText.textContent = "UNCLE DOWN!";
-      if (koSubtitle) koSubtitle.textContent = "NED WINS • HOA CITATION ISSUED";
+      if (koTitle) koTitle.textContent = "KNOCKOUT!";
+      if (koSubtitle) koSubtitle.textContent = "NED WINS BY KO • HOA CITATION ISSUED";
     } else {
       koOverlay.classList.remove('visible');
     }
   }
 }
 
-// Play Mode: 'ufc_fight' | 'free_roam' | 'anim_lab'
-let playMode = 'ufc_fight';
-let isSkating = false;
-let currentMPH = 0;
-let uncleVelocity = new THREE.Vector3();
-let isAirborne = false;
-let verticalVelocity = 0;
-let doubleBounceWindow = 0;
-
-// Camera Drone Settings (Chloe's Camera Drone)
-let cameraOffset = new THREE.Vector3(0, 2.8, 5.8);
-let cameraLookTarget = new THREE.Vector3();
-let screenShake = 0;
-
-// Animation Workbench controls
-window.setPlayMode = (mode) => {
-  playMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-  const btn = document.getElementById(`mode-${mode}`);
-  if (btn) btn.classList.add('active');
-
-  const labPanel = document.getElementById('anim-lab-panel');
-  if (labPanel) {
-    labPanel.style.display = mode === 'anim_lab' ? 'block' : 'none';
-  }
-
-  if (mode === 'ufc_fight') {
-    world.octagonGroup.visible = true;
-    combat.resetMatch();
-  } else if (mode === 'free_roam') {
-    world.octagonGroup.visible = true;
-  } else if (mode === 'anim_lab') {
-    uncleData.root.position.set(0, 0, 0);
-    uncleAnim.setState('idle');
-  }
-};
-
-window.playLabAnimation = (animName) => {
-  uncleAnim.playAction(animName, labAnimSpeed);
-  soundFX.playWhoosh(1.0);
-  if (stateIndicator) stateIndicator.textContent = `ANIM: ${animName.toUpperCase()}`;
-};
-
 window.resetMatch = () => {
   combat.resetMatch();
+  uncleData.root.position.set(-1.6, 0, 0);
+  uncleData.root.rotation.set(0, Math.PI / 2, 0);
+  neighborData.root.position.set(1.6, 0, 0);
+  neighborData.root.rotation.set(0, -Math.PI / 2, 0);
 };
 
-let labAnimSpeed = 1.0;
-window.setAnimSpeed = (speed) => {
-  labAnimSpeed = speed;
-  uncleAnim.animSpeed = speed;
-  const speedDisplay = document.getElementById('speed-val-display');
-  if (speedDisplay) speedDisplay.textContent = `${speed.toFixed(2)}x`;
+// CAMERA MODES: 'broadcast' (UFC 5 classic side broadcast) vs 'tight' (UFC 5 over-the-shoulder)
+let camMode = 'broadcast';
+
+window.toggleCamMode = () => {
+  camMode = camMode === 'broadcast' ? 'tight' : 'broadcast';
+  if (camToggleBtn) {
+    camToggleBtn.innerHTML = `<kbd>V</kbd> Cam: ${camMode === 'broadcast' ? 'Broadcast' : 'Over-Shoulder'}`;
+  }
 };
 
-// Handle Window Resize
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyV') {
+    window.toggleCamMode();
+  }
+});
+
+// Camera positioning targets
+const targetCamPos = new THREE.Vector3(0, 1.45, 4.2);
+const currentLookAt = new THREE.Vector3(0, 1.25, 0);
+
+// Initial camera position
+camera.position.set(0, 1.45, 4.5);
+camera.lookAt(currentLookAt);
+
+// Handle window resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Main Loop
+// Main Animation Loop
 let lastTime = performance.now();
 
 function animate() {
@@ -178,210 +127,133 @@ function animate() {
 
   input.update();
 
-  // Mode-specific handling
-  if (playMode === 'anim_lab') {
-    uncleAnim.update(dt);
-  } else {
-    handleGameplay(dt);
-  }
+  handlePlayerActions(dt);
+  combat.update(dt, false);
+  updateUFC5Camera(dt);
 
-  // Update Combat
-  combat.update(dt, playMode === 'anim_lab');
-
-  // Update Chloe's Camera Drone
-  updateCamera(dt);
-
-  // Render 3D Scene
   renderer.render(scene, camera);
 }
 
-function handleGameplay(dt) {
+function handlePlayerActions(dt) {
   const unclePos = uncleData.root.position;
+  const neighborPos = neighborData.root.position;
 
-  // Toggle Skate Mode (Tab or Gamepad Y)
-  if (input.consumeKey('Tab') || input.getGamepadButton(3)) {
-    isSkating = !isSkating;
-    uncleData.skateboard.visible = isSkating;
-    soundFX.playWhoosh(0.8);
-    if (isSkating) {
-      uncleAnim.setState('skate_idle');
-    } else {
-      uncleAnim.setState('idle');
-      soundFX.setSkateRoll(false);
-    }
+  // Face the opponent dynamically
+  const dirToOpponent = new THREE.Vector3().subVectors(neighborPos, unclePos);
+  dirToOpponent.y = 0;
+  if (dirToOpponent.length() > 0.1) {
+    const targetAngle = Math.atan2(dirToOpponent.x, dirToOpponent.z);
+    uncleData.root.rotation.y = THREE.MathUtils.lerp(uncleData.root.rotation.y, targetAngle, 0.15);
   }
 
-  // Combat Attack Triggers (UFC Actions)
-  if (!uncleAnim.isActionLocked) {
+  // UFC Strikes & Grappling Actions
+  if (!uncleAnim.isActionLocked && combat.fightState === 'fighting') {
     if (input.consumeLeftClick() || input.consumeKey('KeyJ') || input.getGamepadButton(0)) {
-      // Left Jab
-      soundFX.playWhoosh(1.0);
       uncleAnim.playAction('jab', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: UFC JAB';
     } else if (input.consumeRightClick() || input.consumeKey('KeyK') || input.getGamepadButton(2)) {
-      // Right Cross
-      soundFX.playWhoosh(1.2);
       uncleAnim.playAction('cross', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: UFC CROSS';
     } else if (input.consumeKey('KeyQ')) {
-      // Sweeping Left Hook
-      soundFX.playWhoosh(1.3);
       uncleAnim.playAction('hook', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: UFC HOOK';
     } else if (input.consumeKey('KeyC') || input.getGamepadButton(1)) {
-      // Roundhouse Kick
-      soundFX.playWhoosh(1.4);
       uncleAnim.playAction('roundhouse', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: ROUNDHOUSE KICK';
-    } else if (input.consumeKey('KeyV')) {
-      // Clinch Knee
-      soundFX.playWhoosh(1.2);
-      uncleAnim.playAction('knee', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: CLINCH KNEE';
-    } else if (input.consumeKey('KeyR')) {
-      // Double-Leg Takedown
-      soundFX.playWhoosh(1.5);
-      uncleAnim.playAction('takedown', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: TAKEDOWN SHOOT';
-    } else if (input.consumeKey('KeyF') || (input.gamepadIndex !== null && input.getGamepadButton(5))) {
-      // Madden Stiff-Arm Truck Charge
-      soundFX.playWhoosh(1.6);
-      uncleAnim.playAction('stiff_arm', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: MADDEN STIFF-ARM';
     } else if (input.consumeKey('KeyE')) {
-      // Juke
-      soundFX.playWhoosh(0.8);
-      uncleAnim.playAction('juke_right', 1.0);
-      if (stateIndicator) stateIndicator.textContent = 'STATE: MADDEN JUKE';
+      uncleAnim.playAction('knee', 1.0);
+    } else if (input.consumeKey('KeyR')) {
+      uncleAnim.playAction('takedown', 1.0);
+    } else if (input.consumeKey('KeyF') || (input.gamepadIndex !== null && input.getGamepadButton(5))) {
+      uncleAnim.playAction('stiff_arm', 1.0);
     }
   }
 
-  // Locomotion & Physics (Mass x Velocity, 108 kg heft)
+  // Footwork & Movement relative to camera / opponent
   const mx = input.moveVector.x;
   const my = input.moveVector.y;
   const isMoving = Math.hypot(mx, my) > 0.05;
 
-  let maxSpeedCMPS = isSkating ? 1788 : (input.sprint ? 750 : 400); // 40 MPH on skate, 7.5 m/s sprint
-  let targetSpeedMPS = maxSpeedCMPS / 100;
+  if (isMoving && !uncleAnim.isActionLocked) {
+    const moveSpeed = input.sprint ? 5.0 : 3.2; // m/s
+    
+    // Relative movement along and perpendicular to camera view
+    const camForward = new THREE.Vector3();
+    camera.getWorldDirection(camForward);
+    camForward.y = 0;
+    camForward.normalize();
 
-  if (isMoving) {
-    const moveAngle = Math.atan2(mx, my);
-    uncleData.root.rotation.y = THREE.MathUtils.lerp(uncleData.root.rotation.y, moveAngle, 0.15);
+    const camRight = new THREE.Vector3(-camForward.z, 0, camForward.x).normalize();
 
-    const forward = new THREE.Vector3(Math.sin(moveAngle), 0, Math.cos(moveAngle));
-    uncleVelocity.lerp(forward.multiplyScalar(targetSpeedMPS), 0.12);
+    const moveDir = new THREE.Vector3()
+      .addScaledVector(camRight, mx)
+      .addScaledVector(camForward, my)
+      .normalize();
 
-    if (!uncleAnim.isActionLocked) {
-      if (isSkating) {
-        uncleAnim.setState('skate_push', 1.1);
-        soundFX.setSkateRoll(true, uncleVelocity.length() / targetSpeedMPS);
-      } else if (input.sprint) {
-        uncleAnim.setState('sprint', 1.15);
-        if (stateIndicator) stateIndicator.textContent = 'STATE: SPRINT (40 MPH CAP)';
-      } else {
-        uncleAnim.setState('walk', 1.0);
-        if (stateIndicator) stateIndicator.textContent = 'STATE: ON-FOOT LOCOMOTION';
-      }
-    }
-  } else {
-    uncleVelocity.lerp(new THREE.Vector3(), 0.18);
-    if (!uncleAnim.isActionLocked) {
-      if (isSkating) {
-        uncleAnim.setState('skate_idle');
-        soundFX.setSkateRoll(false);
-      } else {
-        uncleAnim.setState('idle');
-      }
-    }
+    unclePos.addScaledVector(moveDir, moveSpeed * dt);
+    uncleAnim.setState(input.sprint ? 'sprint' : 'walk', 1.0);
+  } else if (!uncleAnim.isActionLocked) {
+    uncleAnim.setState('idle');
   }
 
-  // Ground position update
-  unclePos.addScaledVector(uncleVelocity, dt);
-
-  // Trampoline interaction (GDD TASK-201)
-  const toTramp = new THREE.Vector2(unclePos.x - world.trampolinePos.x, unclePos.z - world.trampolinePos.z);
-  if (toTramp.length() < world.trampolineRadius && unclePos.y <= 0.65) {
-    const isDoubleBounce = doubleBounceWindow > 0;
-    verticalVelocity = isDoubleBounce ? 22 : 12; // massive vertical boost!
-    isAirborne = true;
-    uncleAnim.playAction('trampoline_bounce', 1.0);
-    soundFX.playTrampolineBounce(isDoubleBounce);
-    screenShake = 0.4;
-    doubleBounceWindow = 0;
-    if (stateIndicator) stateIndicator.textContent = isDoubleBounce ? 'DOUBLE BOUNCE!! (+100% BOOST)' : 'TRAMPOLINE BOUNCE';
+  // Octagon cage boundary clamping
+  const arenaDist = unclePos.length();
+  if (arenaDist > 6.8) {
+    unclePos.setLength(6.8);
   }
 
-  // Jump input
-  if (input.consumeKey('Space') || input.getGamepadButton(0)) {
-    if (!isAirborne) {
-      verticalVelocity = 7.5;
-      isAirborne = true;
-      doubleBounceWindow = 0.25;
-      soundFX.playWhoosh(1.2);
-    } else if (doubleBounceWindow > 0) {
-      // Rebound timing window tap
-      doubleBounceWindow = 0.35;
-    }
-  }
-
-  if (doubleBounceWindow > 0) {
-    doubleBounceWindow -= dt;
-  }
-
-  // Airborne gravity
-  if (isAirborne) {
-    verticalVelocity -= 22 * dt; // gravity
-    unclePos.y += verticalVelocity * dt;
-
-    if (unclePos.y <= 0) {
-      unclePos.y = 0;
-      isAirborne = false;
-      verticalVelocity = 0;
-    }
-  }
-
-  // Update speed display (convert m/s to MPH: 1 m/s = 2.23694 MPH)
-  currentMPH = Math.round(uncleVelocity.length() * 2.23694);
-  if (speedIndicator) speedIndicator.textContent = `${currentMPH} MPH`;
-
-  // Arena bounds check
-  if (playMode === 'ufc_fight') {
-    const d = unclePos.length();
-    if (d > 7.2) {
-      unclePos.setLength(7.2);
-    }
-  }
-
-  // Update animations
+  // Update skeletal animators
   uncleAnim.update(dt);
   neighborAnim.update(dt);
 }
 
-function updateCamera(dt) {
+// EA SPORTS UFC 5 CAMERA SYSTEM
+function updateUFC5Camera(dt) {
   const unclePos = uncleData.root.position;
+  const neighborPos = neighborData.root.position;
 
-  // Target camera position
-  const targetCamPos = new THREE.Vector3().copy(unclePos).add(cameraOffset);
+  // Midpoint between the two fighters
+  const mid = new THREE.Vector3().addVectors(unclePos, neighborPos).multiplyScalar(0.5);
 
-  // Apply subtle screenshake on heavy hits / bounces
-  if (screenShake > 0) {
-    targetCamPos.x += (Math.random() - 0.5) * screenShake * 0.8;
-    targetCamPos.y += (Math.random() - 0.5) * screenShake * 0.8;
-    screenShake = Math.max(0, screenShake - dt * 2.5);
-  }
+  // Vector connecting the two fighters
+  const diff = new THREE.Vector3().subVectors(neighborPos, unclePos);
+  const dist = THREE.MathUtils.clamp(diff.length(), 1.4, 8.0);
 
-  camera.position.lerp(targetCamPos, 0.08);
+  if (camMode === 'broadcast') {
+    // UFC 5 BROADCAST CAMERA:
+    // Positions camera perpendicular to the fighting line, looking across the canvas at eye/chest level
+    const perp = new THREE.Vector3(-diff.z, 0, diff.x).normalize();
 
-  // Camera look target tracks midway between Uncle and Neighbor during fight
-  if (playMode === 'ufc_fight' && combat.fightState === 'fighting') {
-    const midPoint = new THREE.Vector3().addVectors(unclePos, neighborData.root.position).multiplyScalar(0.5);
-    midPoint.y = 1.35;
-    cameraLookTarget.lerp(midPoint, 0.1);
+    // Smooth dolly zoom based on distance between fighters
+    const camDist = THREE.MathUtils.clamp(dist * 0.95 + 1.8, 3.2, 5.2);
+    
+    // Smooth camera elevation (eye-level around 1.35m - 1.55m)
+    const camHeight = 1.35 + dist * 0.04;
+
+    targetCamPos.set(
+      mid.x + perp.x * camDist,
+      camHeight,
+      mid.z + perp.z * camDist
+    );
+
+    // Look at the chest level of the action midpoint
+    const targetLook = new THREE.Vector3(mid.x, 1.25, mid.z);
+    currentLookAt.lerp(targetLook, 0.12);
   } else {
-    cameraLookTarget.lerp(new THREE.Vector3(unclePos.x, unclePos.y + 1.25, unclePos.z), 0.1);
+    // UFC 5 OVER-THE-SHOULDER / TIGHT CAM:
+    // Sits directly behind Fun Uncle, slightly offset to right shoulder
+    const dirToOpponent = new THREE.Vector3().subVectors(neighborPos, unclePos).normalize();
+    const rightShoulder = new THREE.Vector3(-dirToOpponent.z, 0, dirToOpponent.x).multiplyScalar(0.42);
+
+    targetCamPos.set(
+      unclePos.x - dirToOpponent.x * 2.2 + rightShoulder.x,
+      1.48,
+      unclePos.z - dirToOpponent.z * 2.2 + rightShoulder.z
+    );
+
+    const targetLook = new THREE.Vector3(neighborPos.x, 1.30, neighborPos.z);
+    currentLookAt.lerp(targetLook, 0.14);
   }
 
-  camera.lookAt(cameraLookTarget);
+  // Smooth cinematic camera lag
+  camera.position.lerp(targetCamPos, 0.09);
+  camera.lookAt(currentLookAt);
 }
 
 // Start loop

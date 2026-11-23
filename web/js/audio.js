@@ -4,7 +4,7 @@
 class SoundFX {
   constructor() {
     this.ctx = null;
-    this.enabled = true;
+    this.enabled = false; // Muted as requested
     this.masterGain = null;
   }
 
